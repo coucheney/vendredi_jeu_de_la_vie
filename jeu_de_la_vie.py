@@ -18,6 +18,7 @@ import tkinter as tk
 # constantes du programme
 
 COUL_FOND = "blue"
+x = 3
 LARGEUR = 600
 HAUTEUR = 400
 

@@ -19,8 +19,10 @@ import tkinter as tk
 
 COUL_FOND = "blue"
 x = 3
+COULEUR = "black"
 LARGEUR = 600
 HAUTEUR = 400
+
 
 
 

@@ -12,6 +12,7 @@
 # import des modules
 
 import tkinter as tk
+import copy
 
 
 ###########################
@@ -19,10 +20,18 @@ import tkinter as tk
 
 COUL_FOND = "grey30"
 COUL_QUADR = "grey60"
+COUL_CARRE = "yellow"
 LARGEUR = 600
 HAUTEUR = 400
-COTE = 10
+COTE = 20
+NB_COL = LARGEUR // COTE
+NB_LIG = HAUTEUR // COTE
 
+
+########################
+# variables globales
+
+tableau = []
 
 
 
@@ -40,10 +49,50 @@ def quadrillage():
         canvas.create_line((x, 0), (x, HAUTEUR), fill=COUL_QUADR)
         x += COTE
 
+def xy_to_ij(x, y):
+    """Retourne les coordonnées de la case du tableau correspondant au pixel de coordonnées (x, y)"""
+    return x // COTE, y // COTE
+
+
+def chg_case(event):
+    """Change l'état de la case sur laquelle on a cliqué"""
+    i, j = xy_to_ij(event.x, event.y)
+    if tableau[i][j] == 0:
+        #si la case est morte
+        x, y = i * COTE, j * COTE
+        carre = canvas.create_rectangle((x, y), (x+COTE, y+COTE), fill=COUL_CARRE, outline=COUL_QUADR)
+        tableau[i][j] = carre
+    else:
+        canvas.delete(tableau[i][j])
+        tableau[i][j] = 0
+
+
+def nb_vivant(i, j):
+    """Retourne le nombre de cases vivantes autour de la case de coordonnées (i, j)"""
+    return 0
+
+
+def etape_ij(i, j):
+    """Fait une étape du jeu de la vie sur la case de coordonnées (i, j) et retourne la valeur à modifier dans le tableau"""
+    pass
+
+
+def etape():
+    """Fait une étape du jeu de la vie"""
+    global tableau
+    tableau_res = copy.deepcopy(tableau)
+    for i in range(NB_COL):
+        for j in range(NB_LIG):
+            tableau_res[i][j] = etape_ij(i, j)
+    tableau = tableau_res
 
 
 #############################
 # programme principal
+
+# création du tableau initialisé à 0
+for i in range(NB_COL):
+    tableau.append([0] * NB_LIG)
 
 racine = tk.Tk()
 racine.title("Jeu de la vie")
@@ -53,6 +102,9 @@ canvas = tk.Canvas(racine, bg=COUL_FOND, width=LARGEUR, height=HAUTEUR)
 
 # placement des widgets
 canvas.grid()
+
+# gestion des événements
+canvas.bind("<1>", chg_case)
 
 # autres fonctions
 quadrillage()

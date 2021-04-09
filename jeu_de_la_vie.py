@@ -114,6 +114,35 @@ def etape(event):
     tableau = tableau_res
 
 
+def sauvegarder():
+    """Sauvegarde le tableau dans le fichier sauvegarde.txt"""
+    fic = open("sauvegarde.txt", "w")
+    for i in range(NB_COL):
+        for j in range(NB_LIG):
+            fic.write(str(tableau[i][j]) + "\n")
+    fic.close()
+
+
+def charger():
+    """Chargement du fichier sauvegarde.txt pour dessiner la grille"""
+    fic = open("sauvegarde.txt", "r")
+    cpt = 0
+    for ligne in fic:
+        i, j = cpt // NB_LIG, cpt % NB_LIG
+        n = int(ligne)
+        if n == 0:
+            tableau[i][j] = 0
+        else:
+            x, y = i * COTE, j * COTE
+            carre = canvas.create_rectangle((x, y),
+                                            (x+COTE, y+COTE),
+                                            fill=COUL_CARRE,
+                                            outline=COUL_QUADR)
+            tableau[i][j] = carre
+        cpt += 1
+    fic.close()
+
+
 #############################
 # programme principal
 
@@ -126,9 +155,13 @@ racine.title("Jeu de la vie")
 
 # création des widgets
 canvas = tk.Canvas(racine, bg=COUL_FOND, width=LARGEUR, height=HAUTEUR)
+bout_sauv = tk.Button(racine, text="Sauvegarder", command=sauvegarder)
+bout_charger = tk.Button(racine, text="Charger", command=charger)
 
 # placement des widgets
-canvas.grid()
+canvas.grid(rowspan=2)
+bout_sauv.grid(column=1, row=0)
+bout_charger.grid(column=1, row=1)
 
 # gestion des événements
 canvas.bind("<1>", chg_case)

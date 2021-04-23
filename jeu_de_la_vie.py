@@ -32,6 +32,8 @@ NB_LIG = HAUTEUR // COTE
 # variables globales
 
 tableau = []
+val = 0
+delai = 500
 
 ##########################
 # fonctions du programme
@@ -104,7 +106,7 @@ def etape_ij(i, j):
             return 0
 
 
-def etape(event):
+def etape():
     """Fait une étape du jeu de la vie"""
     global tableau
     tableau_res = copy.deepcopy(tableau)
@@ -112,6 +114,11 @@ def etape(event):
         for j in range(NB_LIG):
             tableau_res[i][j] = etape_ij(i, j)
     tableau = tableau_res
+
+
+def etape_n(event):
+    """Fait une étape de l'automate en enelevant le paramètre event"""
+    etape()
 
 
 def sauvegarder():
@@ -126,6 +133,8 @@ def sauvegarder():
 def charger():
     """Chargement du fichier sauvegarde.txt pour dessiner la grille"""
     fic = open("sauvegarde.txt", "r")
+    canvas.delete("all")
+    quadrillage()
     cpt = 0
     for ligne in fic:
         i, j = cpt // NB_LIG, cpt % NB_LIG
@@ -143,6 +152,41 @@ def charger():
     fic.close()
 
 
+def start():
+    """Démarre l'automate"""
+    global id_after
+    etape()
+    id_after = racine.after(delai, start)
+
+
+def start_stop():
+    """Démarre ou arrête l'automate et change le texte du bouton"""
+    global val
+    if val == 0:
+        bout_start_stop.config(text="arrêter")
+        start()
+    else:
+        bout_start_stop.config(text="démarrer")
+        racine.after_cancel(id_after)
+    val = 1 - val
+
+
+def augmente_delai(event):
+    """augmente le délai entre 2 étapes de l'automate"""
+    global delai
+    if delai < 1000:
+        delai += 10
+        lbl_delai.config(text="Délai entre 2 étapes " + str(delai) + "ms")
+
+
+def diminue_delai(event):
+    """diminue le délai entre 2 étapes de l'automate"""
+    global delai
+    if delai > 10:
+        delai -= 10
+        lbl_delai.config(text="Délai entre 2 étapes " + str(delai) + "ms")
+
+
 #############################
 # programme principal
 
@@ -157,15 +201,21 @@ racine.title("Jeu de la vie")
 canvas = tk.Canvas(racine, bg=COUL_FOND, width=LARGEUR, height=HAUTEUR)
 bout_sauv = tk.Button(racine, text="Sauvegarder", command=sauvegarder)
 bout_charger = tk.Button(racine, text="Charger", command=charger)
+bout_start_stop = tk.Button(racine, text="démarrer", command=start_stop)
+lbl_delai = tk.Label(racine, text="Délai entre 2 étapes " + str(delai) + "ms")
 
 # placement des widgets
-canvas.grid(rowspan=2)
+canvas.grid(rowspan=3)
 bout_sauv.grid(column=1, row=0)
 bout_charger.grid(column=1, row=1)
+bout_start_stop.grid(column=1, row=2)
+lbl_delai.grid(column=0, row=3)
 
 # gestion des événements
 canvas.bind("<1>", chg_case)
-racine.bind("n", etape)
+racine.bind("n", etape_n)
+racine.bind("m", diminue_delai)
+racine.bind("p", augmente_delai)
 
 # autres fonctions
 quadrillage()
